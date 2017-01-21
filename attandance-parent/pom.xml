@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.kado.attandance</groupId>
     <artifactId>attandance-parent</artifactId>
@@ -19,5 +20,126 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <!-- | The spec version of the public Guice API -->
+        <guice.api.version>1.4</guice.api.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- | Use "-Dguice.with.jarjar=false" to build without jarjar -->
+        <guice.with.jarjar>true</guice.with.jarjar>
+        <!-- | Use "-Dguice.with.no_aop=false" to skip the no-AOP variant -->
+        <guice.with.no_aop>true</guice.with.no_aop>
+        <gpg.skip>true</gpg.skip>
     </properties>
+
+    <scm>
+        <connection>scm:git:https://github.com/mysonhushu/attandance.git</connection>
+        <developerConnection>scm:git:https://github.com/mysonhushu/attandance.git</developerConnection>
+        <url>https://github.com/mysonhushu/attandance.git</url>
+    </scm>
+
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>javax.inject</groupId>
+                <artifactId>javax.inject</artifactId>
+                <version>1</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.inject</groupId>
+                <artifactId>javax.inject-tck</artifactId>
+                <version>1</version>
+            </dependency>
+            <dependency>
+                <groupId>aopalliance</groupId>
+                <artifactId>aopalliance</artifactId>
+                <version>1.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>18.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava-testlib</artifactId>
+                <version>18.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm</artifactId>
+                <version>5.0.3</version>
+            </dependency>
+            <dependency>
+                <groupId>cglib</groupId>
+                <artifactId>cglib</artifactId>
+                <version>3.1</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    
+    <build>
+        <plugins>
+            <!-- | Add standard LICENSE and NOTICE files -->
+            <plugin>
+                <artifactId>maven-remote-resources-plugin</artifactId>
+            </plugin>
+            <!-- | Enable Java6 conformance checks -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>animal-sniffer-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <!-- | Temporarily excluded tests -->
+                    <excludes>
+                        <exclude>**/*$*</exclude>
+                        <exclude>**/ErrorHandlingTest*</exclude>
+                        <exclude>**/OSGiContainerTest*</exclude>
+                        <exclude>**/ScopesTest*</exclude>
+                        <exclude>**/TypeConversionTest*</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <!-- | Add OSGi manifest -->
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Bundle-Name>${project.artifactId}$(if;$(classes;NAMED;*.MethodAspect);; (no_aop))</Bundle-Name>
+                        <Import-Package>!net.sf.cglib.*,!org.objectweb.asm.*,!com.google.inject.*,*</Import-Package>
+                        <Eclipse-ExtensibleAPI>true</Eclipse-ExtensibleAPI>
+                    </instructions>
+                </configuration>
+            </plugin>
+            <!-- | Remove duplicate jarjar'd LICENSE and NOTICE -->
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>LICENSE</exclude>
+                        <exclude>NOTICE</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <!-- | Generate sources jar -->
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+            </plugin>
+            <!-- | Generate javadoc jar -->
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
